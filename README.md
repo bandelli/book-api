@@ -1,5 +1,5 @@
 # springboot
-API de estudos
+Just a study API
 
 
 ## Collection
