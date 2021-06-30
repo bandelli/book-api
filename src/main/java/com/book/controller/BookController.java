@@ -2,47 +2,52 @@ package com.book.controller;
 
 import com.book.model.Book;
 import com.book.service.BookService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(value = "/book")
 public class BookController {
 
-    BookService bookService;
-
-    @Autowired
-    public BookController(BookService bookService) {
-        this.bookService = bookService;
-    }
+    private final BookService bookService;
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable("id") long id) {
+    public void delete(@PathVariable long id) {
         bookService.delete(id);
     }
 
-    @GetMapping("/list")
+    @GetMapping()
     public List<Book> findAll() {
         return bookService.findAll();
     }
 
-    @GetMapping("/find/{id}")
-    public Book findById(@PathVariable("id") long id) {
+    @GetMapping("/{id}")
+    public Book findById(@PathVariable long id) {
         return bookService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Book save(@RequestBody Book book) {
-        return bookService.save(book);
+    public HttpEntity<Object> save(@RequestBody Book book) {
+        final Book  b = bookService.save(book);
+
+        final URI location = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("{id}")
+                .build(b.getId());
+        return ResponseEntity.created(location).build();
     }
 
     @PutMapping("/{id}")
-    public Book update(@PathVariable("id") long id, @RequestBody @Valid Book book) {
+    public Book update(@PathVariable long id, @RequestBody @Valid Book book) {
         return bookService.update(id, book);
     }
 }
