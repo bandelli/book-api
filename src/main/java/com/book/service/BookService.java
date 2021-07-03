@@ -1,15 +1,15 @@
 package com.book.service;
 
 import com.book.model.Book;
+import com.book.model.dto.BookDTO;
 import com.book.repository.BookRepository;
+import com.book.service.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -23,13 +23,12 @@ public class BookService {
     }
 
     public void delete(Long id) {
-        Optional<Book> book = bookRepository.findById(id);
-        book.ifPresent(bookRepository::delete);
+        Book book = bookRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+        bookRepository.delete(book);
     }
 
     public Book findById(Long id) {
-        Optional<Book> book = bookRepository.findById(id);
-        return book.orElse(null);
+        return bookRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
     }
 
     public List<Book> findAll() {
@@ -40,18 +39,17 @@ public class BookService {
         return bookRepository.save(book);
     }
 
-    public Book update(long id, Book book) {
-        Book oldBook = findById(id);
-        if(oldBook == null)
-            return  null;
+    public Book update(long id, BookDTO updateBook) {
+        Book book = findById(id);
+        if (book == null)
+            return null;
 
-        buildUpdateBook(book, oldBook);
+        buildUpdateBook(updateBook, book);
         return bookRepository.save(book);
     }
 
-    private void buildUpdateBook(Book book, Book oldBook) {
-        book.setId(oldBook.getId());
-        book.setCreateAt(oldBook.getCreateAt());
-        book.setUpdateAt(LocalDateTime.now());
+    private void buildUpdateBook(BookDTO updateBook, Book oldBook) {
+        oldBook.setTitle(updateBook.getTitle());
+        oldBook.setAuthor(updateBook.getAuthor());
     }
 }

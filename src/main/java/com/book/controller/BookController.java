@@ -1,10 +1,10 @@
 package com.book.controller;
 
 import com.book.model.Book;
+import com.book.model.dto.BookDTO;
 import com.book.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -36,9 +36,8 @@ public class BookController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     public HttpEntity<Object> save(@RequestBody Book book) {
-        final Book  b = bookService.save(book);
+        final Book b = bookService.save(book);
 
         final URI location = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("{id}")
@@ -47,7 +46,7 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
-    public Book update(@PathVariable long id, @RequestBody @Valid Book book) {
-        return bookService.update(id, book);
+    public Book update(@PathVariable long id, @RequestBody @Valid BookDTO updateBook) {
+        return bookService.update(id, updateBook);
     }
 }
